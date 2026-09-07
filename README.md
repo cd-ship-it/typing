@@ -1,6 +1,6 @@
 # Key Quest
 
-A progressive typing game for kids, in a single HTML file. Open `key-quest.html` in any browser.
+A progressive typing game for kids, in a single HTML file. Open `index.html` in any browser.
 
 ## Levels
 
