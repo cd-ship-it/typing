@@ -1,0 +1,882 @@
+<meta charset="utf-8">
+<title>Key Quest</title>
+<meta name="description" content="A progressive typing adventure for kids: master the home row, then the top row, the bottom row, and finally the whole keyboard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,700&display=swap">
+<style>
+  :root {
+    --bg: #e9f0f1;
+    --bg-2: #dfe9ea;
+    --surface: #ffffff;
+    --ink: #2b2f45;
+    --muted: #8a90a6;
+    --line: #d3dbe0;
+    --accent: #ff6b5e;      /* coral: the target */
+    --accent-ink: #c33a2e;
+    --go: #2fb37e;          /* success green */
+    --go-soft: #d8f3e6;
+    --no: #ef5d8a;          /* gentle miss pink */
+    --no-soft: #fde1ea;
+    --star: #ffb43d;        /* sunny gold */
+    --key-face: #ffffff;
+    --key-edge: #c4ccd6;
+    --key-ink: #3a3f57;
+    /* finger group tints */
+    --f-pL: #ff9db0;
+    --f-rL: #ffb877;
+    --f-mL: #ffd24d;
+    --f-iL: #63cf8a;
+    --f-iR: #4bc9c0;
+    --f-mR: #5bb0f0;
+    --f-rR: #8f9cf0;
+    --f-pR: #b98cf0;
+    --f-th: #c9b58c;
+    --shadow: 0 10px 30px rgba(43,47,69,.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #191f2c;
+      --bg-2: #141a25;
+      --surface: #232c3e;
+      --ink: #eef2fa;
+      --muted: #9aa3ba;
+      --line: #34405a;
+      --accent: #ff7d70;
+      --accent-ink: #ffb3aa;
+      --go: #47c98f;
+      --go-soft: #1f3d34;
+      --no: #f2789e;
+      --no-soft: #40263200;
+      --star: #ffc154;
+      --key-face: #33405b;
+      --key-edge: #1d2635;
+      --key-ink: #eaf0fb;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #191f2c;
+    --bg-2: #141a25;
+    --surface: #232c3e;
+    --ink: #eef2fa;
+    --muted: #9aa3ba;
+    --line: #34405a;
+    --accent: #ff7d70;
+    --accent-ink: #ffb3aa;
+    --go: #47c98f;
+    --go-soft: #1f3d34;
+    --no: #f2789e;
+    --no-soft: #402632;
+    --star: #ffc154;
+    --key-face: #33405b;
+    --key-edge: #1d2635;
+    --key-ink: #eaf0fb;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 15% -10%, var(--bg-2), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, var(--bg-2), transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    font-family: "Nunito", ui-rounded, "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 22px 16px 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { width: 100%; max-width: 940px; }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .mark {
+    width: 46px; height: 46px; border-radius: 14px;
+    display: grid; place-items: center;
+    background: linear-gradient(150deg, var(--accent), #ff9d5e);
+    box-shadow: 0 6px 0 rgba(0,0,0,.10), var(--shadow);
+    font-size: 24px;
+  }
+  .brand h1 {
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 1rem + 2vw, 2.1rem);
+    margin: 0;
+    letter-spacing: .5px;
+    line-height: 1;
+  }
+  .brand p { margin: 3px 0 0; color: var(--muted); font-weight: 700; font-size: .82rem; letter-spacing: .3px; }
+
+  .hud { display: flex; align-items: center; gap: 10px; }
+  .stat {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 8px 14px;
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    box-shadow: var(--shadow);
+  }
+  .stat .ico { font-size: 1.1rem; }
+  .stat .lbl { color: var(--muted); font-size: .68rem; letter-spacing: .6px; text-transform: uppercase; display: block; line-height: 1; margin-bottom: 2px; }
+  .stat .val { font-size: 1.15rem; line-height: 1; color: var(--ink); }
+  .iconbtn {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    width: 44px; height: 44px;
+    font-size: 1.15rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    color: var(--ink);
+  }
+  .iconbtn:hover { border-color: var(--accent); }
+
+  /* Level track */
+  .track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 20px 0 16px;
+  }
+  .lvl {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 12px 11px;
+    text-align: left;
+    font: inherit;
+    color: var(--ink);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .lvl:disabled { cursor: not-allowed; opacity: .55; }
+  .lvl:not(:disabled):hover { transform: translateY(-2px); border-color: var(--accent); }
+  .lvl[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 4px var(--no-soft), var(--shadow); }
+  .lvl .n { display: block; font-size: .68rem; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; color: var(--muted); }
+  .lvl .t { display: block; font-family: "Baloo 2", sans-serif; font-weight: 700; font-size: 1.02rem; margin-top: 3px; }
+  .lvl .keys { display: block; font-size: .72rem; color: var(--muted); font-weight: 700; margin-top: 4px; letter-spacing: 1px; word-break: break-all; }
+  .lvl .lock { position: absolute; top: 10px; right: 12px; font-size: .95rem; }
+  .lvl .done { position: absolute; top: 10px; right: 12px; font-size: .95rem; color: var(--go); }
+
+  /* Stage */
+  .stage {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 24px;
+    padding: 26px 22px 24px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .stage .hint {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: .92rem;
+    margin: 0 auto 14px;
+    max-width: 52ch;
+    text-wrap: balance;
+  }
+  .progress-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 16px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .dot.filled { background: var(--go); }
+  .dot.current { background: var(--accent); box-shadow: 0 0 0 3px var(--no-soft); }
+
+  #word {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 78px;
+    margin-bottom: 6px;
+  }
+  #word.shake { animation: shake .34s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-9px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(4px); }
+  }
+  .ch {
+    font-family: "Baloo 2", sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.9rem, 1.2rem + 3.4vw, 3.1rem);
+    line-height: 1;
+    min-width: .78em;
+    padding: 10px 12px 12px;
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--muted);
+    border: 2px solid transparent;
+    transition: color .1s, background .1s, transform .1s;
+  }
+  .ch.space { min-width: 1.1em; background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px) center / 100% 3px no-repeat, var(--bg); }
+  .ch.done { color: var(--go); background: var(--go-soft); }
+  .ch.current {
+    color: var(--accent-ink);
+    background: var(--surface);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 0 var(--no-soft);
+  }
+  .ch.pop { animation: pop .28s ease; }
+  @keyframes pop { 40% { transform: translateY(-4px) scale(1.22); } }
+
+  .cheer {
+    font-family: "Baloo 2", sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--go);
+    min-height: 1.6em;
+    margin-top: 4px;
+  }
+  .cheer.miss { color: var(--no); }
+
+  /* Keyboard */
+  .kb {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    overflow-x: auto;
+    padding: 6px 2px 4px;
+  }
+  .kb-row { display: flex; gap: 7px; }
+  .key {
+    --edge: var(--key-edge);
+    position: relative;
+    min-width: 42px;
+    height: 46px;
+    padding: 0 8px;
+    border-radius: 11px;
+    background: var(--key-face);
+    color: var(--key-ink);
+    border: 2px solid var(--edge);
+    border-bottom-width: 5px;
+    display: grid;
+    place-items: center;
+    font-family: "Baloo 2", sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    user-select: none;
+    transition: transform .08s ease, background .1s ease, border-color .1s ease, box-shadow .1s ease;
+  }
+  .key::after {
+    content: "";
+    position: absolute;
+    left: 8px; right: 8px; bottom: -5px;
+    height: 4px; border-radius: 3px;
+    background: var(--finger, var(--line));
+    opacity: .9;
+  }
+  .key.wide { min-width: 66px; }
+  .key.space { min-width: 300px; }
+  .key.dim { opacity: .38; }
+  .key.next {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 0 var(--no-soft);
+    opacity: 1;
+    animation: bob 1s ease-in-out infinite;
+    z-index: 2;
+  }
+  .key.next::after { background: #fff; opacity: .7; }
+  @keyframes bob { 50% { transform: translateY(-9px); } }
+  .key.hit { background: var(--go); color: #fff; border-color: var(--go); transform: translateY(2px); }
+  .key.bad { background: var(--no); color: #fff; border-color: var(--no); }
+  .key .bump { position: absolute; bottom: 6px; width: 12px; height: 3px; border-radius: 3px; background: currentColor; opacity: .5; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 8px 14px;
+    margin-top: 14px;
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 14px; height: 6px; border-radius: 3px; display: inline-block; }
+
+  /* Modal */
+  .scrim {
+    position: fixed; inset: 0;
+    background: rgba(20,26,37,.55);
+    backdrop-filter: blur(3px);
+    display: grid; place-items: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .scrim[hidden] { display: none; }
+  .card {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 24px;
+    padding: 30px 28px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow);
+    animation: rise .3s ease;
+  }
+  @keyframes rise { from { transform: translateY(16px); opacity: 0; } }
+  .card h2 {
+    font-family: "Baloo 2", sans-serif;
+    font-weight: 800;
+    font-size: 1.7rem;
+    margin: 6px 0 4px;
+  }
+  .card .big-stars { font-size: 2rem; letter-spacing: 4px; margin: 8px 0 4px; }
+  .card p { color: var(--muted); font-weight: 700; margin: 6px 0 18px; }
+  .card .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    font-family: "Baloo 2", sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 12px 20px;
+    border-radius: 14px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,.08);
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+
+  footer { color: var(--muted); font-weight: 700; font-size: .78rem; margin-top: 22px; text-align: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+  @media (max-width: 560px) {
+    .track { grid-template-columns: repeat(2, 1fr); }
+    .key { min-width: 34px; height: 42px; font-size: .9rem; }
+    .key.space { min-width: 200px; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark">⌨️</div>
+      <div>
+        <h1>Key Quest</h1>
+        <p>A TYPING ADVENTURE, ONE ROW AT A TIME</p>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="stat"><span class="ico">⭐</span><span><span class="lbl">Stars</span><span class="val" id="stars">0</span></span></div>
+      <div class="stat"><span class="ico">🔥</span><span><span class="lbl">Streak</span><span class="val" id="streak">0</span></span></div>
+      <button class="iconbtn" id="sound" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+    </div>
+  </header>
+
+  <div class="track" id="track"></div>
+
+  <section class="stage">
+    <p class="hint" id="hint"></p>
+    <div class="progress-dots" id="dots"></div>
+    <div id="word" aria-live="polite"></div>
+    <div class="cheer" id="cheer"></div>
+
+    <div class="kb" id="kb"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <footer>Sit up tall &bull; Curl your fingers &bull; Look at the screen, not the keys</footer>
+</div>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="card">
+    <div style="font-size:2.4rem" id="cardEmoji">🎉</div>
+    <h2 id="cardTitle">Level Clear!</h2>
+    <div class="big-stars" id="cardStars">⭐⭐⭐</div>
+    <p id="cardMsg"></p>
+    <div class="row" id="cardBtns"></div>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Levels ---------------------------------------------------- */
+  const LEVELS = [
+    {
+      name: "Home Row",
+      keys: "asdfghjkl;'",
+      rows: [2],
+      pool: "asdfghjkl",
+      hint: "Rest your fingers on the home row. Feel the bumps on F and J — those are for your pointer fingers. Some rounds are real words, some are just finger practice!",
+      words: ["as","ask","dad","sad","add","all","fall","hall","gas","flag",
+              "glad","glass","salad","half","flash","gash","lad","ash","lash","slag"]
+    },
+    {
+      name: "Top Row",
+      keys: "qwertyuiop",
+      rows: [1],
+      pool: "qwertyuiopasdf",
+      hint: "Reach up from the home row to the top row, then bring your fingers back home. Real words and practice letters are mixed together!",
+      words: ["we","you","tree","type","water","write","quiet","power","happy",
+              "puppy","tiger","paper","three","sweet","otter","party","wiper","upper","report","preppy"]
+    },
+    {
+      name: "Bottom Row",
+      keys: "zxcvbnm,./",
+      rows: [3],
+      pool: "zxcvbnmasdf",
+      hint: "Curl your fingers down to the bottom row. Keep your wrists still and floating. Watch for practice letters between the real words!",
+      words: ["van","cab","box","mix","six","fox","cave","brave","candy","zebra",
+              "climb","jump","buzz","crab","black","brown","movie","number","zoom","vibe"]
+    },
+    {
+      name: "All Keys",
+      keys: "the whole board + numbers",
+      rows: [0,1,2,3],
+      pool: "etaoinshrdlucmfwybpvkxjqz0123456789",
+      hint: "Now the whole keyboard! Use your right pinky for Shift when you see a capital letter or a !. Real sentences and random codes are mixed together.",
+      words: ["my cat is 3.","we have 7 dogs!","i see 12 stars.","room 4 is fun.",
+              "she is 8 today!","10 red apples","level 5 is next.","2 plus 2 is 4.",
+              "the big bus is late.","type fast and win!","6 frogs hop away.","games start at 9."]
+    }
+  ];
+  const WORDS_PER_LEVEL = 18;
+
+  function genNonsense(pool) {
+    const n = 2 + Math.floor(Math.random() * 5);   // 2..6 characters
+    let s = "";
+    for (let k = 0; k < n; k++) s += pool[Math.floor(Math.random() * pool.length)];
+    return s;
+  }
+  function makeQueue(lv) {
+    const reals = shuffle(lv.words).slice(0, Math.min(9, lv.words.length));
+    const items = reals.slice();
+    while (items.length < WORDS_PER_LEVEL) items.push(genNonsense(lv.pool));
+    return shuffle(items);
+  }
+  const CHEERS = ["Nice!","Great job!","You rock!","Awesome!","Keep going!","Super!","Way to go!","High five!","Boom!","So smooth!"];
+
+  /* ---------- Keyboard layout ---------------------------------------------
+     finger groups: pL rL mL iL  iR mR rR pR  (th = thumb) */
+  const F = { pL:"--f-pL", rL:"--f-rL", mL:"--f-mL", iL:"--f-iL",
+              iR:"--f-iR", mR:"--f-mR", rR:"--f-rR", pR:"--f-pR", th:"--f-th" };
+  const KB = [
+    [["`",F.pL],["1",F.pL],["2",F.rL],["3",F.mL],["4",F.iL],["5",F.iL],
+     ["6",F.iR],["7",F.iR],["8",F.mR],["9",F.rR],["0",F.pR],["-",F.pR],["=",F.pR]],
+    [["q",F.pL],["w",F.rL],["e",F.mL],["r",F.iL],["t",F.iL],
+     ["y",F.iR],["u",F.iR],["i",F.mR],["o",F.rR],["p",F.pR],["[",F.pR],["]",F.pR]],
+    [["a",F.pL],["s",F.rL],["d",F.mL],["f",F.iL],["g",F.iL],
+     ["h",F.iR],["j",F.iR],["k",F.mR],["l",F.rR],[";",F.pR],["'",F.pR]],
+    [["shiftL",F.pL],["z",F.pL],["x",F.rL],["c",F.mL],["v",F.iL],["b",F.iL],
+     ["n",F.iR],["m",F.iR],[",",F.mR],[".",F.rR],["/",F.pR],["shiftR",F.pR]],
+    [["space",F.th]]
+  ];
+  const LEGEND = [
+    ["Left pinky",F.pL],["Left ring",F.rL],["Left middle",F.mL],["Left pointer",F.iL],
+    ["Right pointer",F.iR],["Right middle",F.mR],["Right ring",F.rR],["Right pinky",F.pR],["Thumbs",F.th]
+  ];
+
+  /* ---------- State --------------------------------------------------------- */
+  const store = {
+    get() {
+      try { return JSON.parse(localStorage.getItem("keyquest") || "{}"); }
+      catch (e) { return {}; }
+    },
+    set(o) { try { localStorage.setItem("keyquest", JSON.stringify(o)); } catch (e) {} }
+  };
+  const saved = store.get();
+  let unlocked = Math.min(saved.unlocked || 0, LEVELS.length - 1);
+  let totalStars = saved.stars || 0;
+  let cleared = saved.cleared || [];
+
+  let levelIdx = 0;
+  let queue = [];
+  let target = "";
+  let pos = 0;
+  let wordsDone = 0;
+  let levelHits = 0;
+  let levelMiss = 0;
+  let streak = 0;
+  let soundOn = saved.sound !== false;
+
+  /* ---------- Elements ---------------------------------------------------- */
+  const el = (id) => document.getElementById(id);
+  const trackEl = el("track"), hintEl = el("hint"), dotsEl = el("dots");
+  const wordEl = el("word"), cheerEl = el("cheer"), kbEl = el("kb"), legendEl = el("legend");
+  const starsEl = el("stars"), streakEl = el("streak"), soundBtn = el("sound");
+  const scrim = el("scrim");
+
+  /* ---------- Sound ------------------------------------------------------- */
+  let actx = null;
+  function beep(freq, dur, type, vol) {
+    if (!soundOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type || "sine";
+      o.frequency.value = freq;
+      g.gain.value = vol || 0.06;
+      o.connect(g); g.connect(actx.destination);
+      const t = actx.currentTime;
+      g.gain.setValueAtTime(g.gain.value, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.start(t); o.stop(t + dur);
+    } catch (e) {}
+  }
+  const sGood = () => beep(660, 0.09, "triangle", 0.05);
+  const sBad  = () => beep(160, 0.16, "sawtooth", 0.05);
+  function sWin() {
+    if (!soundOn) return;
+    [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => beep(f, 0.16, "triangle", 0.06), i * 90));
+  }
+  soundBtn.addEventListener("click", () => {
+    soundOn = !soundOn;
+    soundBtn.textContent = soundOn ? "🔊" : "🔇";
+    const o = store.get(); o.sound = soundOn; store.set(o);
+    if (soundOn) sGood();
+  });
+  soundBtn.textContent = soundOn ? "🔊" : "🔇";
+
+  /* ---------- Build static UI ------------------------------------------- */
+  function buildTrack() {
+    trackEl.innerHTML = "";
+    LEVELS.forEach((lv, i) => {
+      const b = document.createElement("button");
+      b.className = "lvl";
+      b.disabled = i > unlocked;
+      if (i === levelIdx) b.setAttribute("aria-current", "true");
+      const badge = cleared.includes(i) ? '<span class="done">✓</span>'
+                   : (i > unlocked ? '<span class="lock">🔒</span>' : "");
+      b.innerHTML = badge +
+        '<span class="n">Level ' + (i + 1) + '</span>' +
+        '<span class="t">' + lv.name + '</span>' +
+        '<span class="keys">' + lv.keys + '</span>';
+      b.addEventListener("click", () => { if (i <= unlocked) startLevel(i); });
+      trackEl.appendChild(b);
+    });
+  }
+
+  function buildKeyboard() {
+    kbEl.innerHTML = "";
+    KB.forEach((row) => {
+      const r = document.createElement("div");
+      r.className = "kb-row";
+      row.forEach(([label, finger]) => {
+        const k = document.createElement("div");
+        k.className = "key";
+        k.style.setProperty("--finger", "var(" + finger + ")");
+        if (label === "space") { k.classList.add("space"); k.dataset.key = " "; k.textContent = "space"; }
+        else if (label === "shiftL" || label === "shiftR") { k.classList.add("wide"); k.dataset.key = "shift"; k.textContent = "⇧"; }
+        else { k.dataset.key = label; k.textContent = label; }
+        if (label === "f" || label === "j") {
+          const bump = document.createElement("span");
+          bump.className = "bump";
+          k.appendChild(bump);
+        }
+        r.appendChild(k);
+      });
+      kbEl.appendChild(r);
+    });
+    legendEl.innerHTML = LEGEND.map(([name, f]) =>
+      '<span><i style="background:var(' + f + ')"></i>' + name + '</span>').join("");
+  }
+
+  const SHIFTMAP = { "!":"1","@":"2","#":"3","$":"4","%":"5","^":"6","&":"7","*":"8",
+    "(":"9",")":"0","_":"-","+":"=",":":";","\"":"'","<":",",">":".","?":"/",
+    "~":"`","{":"[","}":"]","|":"\\" };
+  function keyEl(ch) {
+    let sel = ch === " " ? " " : ch.toLowerCase();
+    if (SHIFTMAP[ch]) sel = SHIFTMAP[ch];
+    const keys = kbEl.querySelectorAll(".key");
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i].dataset.key === sel) return keys[i];
+    }
+    return null;
+  }
+
+  /* ---------- Game flow ------------------------------------------------- */
+  function shuffle(a) {
+    const b = a.slice();
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  }
+
+  function startLevel(i) {
+    levelIdx = i;
+    const lv = LEVELS[i];
+    queue = makeQueue(lv);
+    wordsDone = 0; levelHits = 0; levelMiss = 0; streak = 0;
+    hintEl.textContent = lv.hint;
+    updateStreak();
+    dimKeyboard(lv.rows);
+    buildTrack();
+    nextWord();
+  }
+
+  function dimKeyboard(activeRows) {
+    const all = new Set([0, 1, 2, 3, 4]);
+    KB.forEach((row, ri) => {
+      const dim = activeRows.length < 4 && !activeRows.includes(ri) && ri !== 4;
+      kbEl.children[ri].querySelectorAll(".key").forEach((k) => k.classList.toggle("dim", dim));
+    });
+  }
+
+  function nextWord() {
+    if (wordsDone >= WORDS_PER_LEVEL) return levelComplete();
+    target = queue[wordsDone];
+    pos = 0;
+    renderWord();
+    renderDots();
+    cheerEl.textContent = "";
+    cheerEl.className = "cheer";
+  }
+
+  function renderWord() {
+    wordEl.innerHTML = "";
+    [...target].forEach((ch, i) => {
+      const s = document.createElement("span");
+      s.className = "ch" + (ch === " " ? " space" : "");
+      s.textContent = ch === " " ? "\u00A0" : ch;
+      if (i < pos) s.classList.add("done");
+      if (i === pos) s.classList.add("current");
+      wordEl.appendChild(s);
+    });
+    highlightNext();
+  }
+
+  function renderDots() {
+    dotsEl.innerHTML = "";
+    for (let i = 0; i < WORDS_PER_LEVEL; i++) {
+      const d = document.createElement("span");
+      d.className = "dot" + (i < wordsDone ? " filled" : (i === wordsDone ? " current" : ""));
+      dotsEl.appendChild(d);
+    }
+  }
+
+  function needShift(ch) {
+    return (ch >= "A" && ch <= "Z") || "~!@#$%^&*()_+{}|:\"<>?".indexOf(ch) !== -1;
+  }
+
+  function highlightNext() {
+    kbEl.querySelectorAll(".key.next").forEach((k) => k.classList.remove("next"));
+    if (pos >= target.length) return;
+    const ch = target[pos];
+    const k = keyEl(ch);
+    if (k) k.classList.add("next");
+    if (needShift(ch)) {
+      kbEl.querySelectorAll('.key[data-key="shift"]').forEach((s) => s.classList.add("next"));
+    }
+  }
+
+  function flashKey(ch, cls) {
+    const k = keyEl(ch);
+    if (!k) return;
+    k.classList.add(cls);
+    setTimeout(() => k.classList.remove(cls), 170);
+  }
+
+  function correctChar() {
+    const tiles = wordEl.children;
+    if (tiles[pos]) {
+      tiles[pos].classList.remove("current");
+      tiles[pos].classList.add("done", "pop");
+    }
+    flashKey(target[pos], "hit");
+    pos++;
+    streak++;
+    levelHits++;
+    updateStreak();
+    sGood();
+    if (pos >= target.length) {
+      wordComplete();
+    } else {
+      if (tiles[pos]) tiles[pos].classList.add("current");
+      highlightNext();
+    }
+  }
+
+  function wrongChar() {
+    streak = 0;
+    levelMiss++;
+    updateStreak();
+    flashKey(target[pos], "bad");
+    wordEl.classList.add("shake");
+    setTimeout(() => wordEl.classList.remove("shake"), 340);
+    cheerEl.textContent = "Try again — look for the glowing key!";
+    cheerEl.className = "cheer miss";
+    sBad();
+  }
+
+  function wordComplete() {
+    wordsDone++;
+    totalStars++;
+    starsEl.textContent = totalStars;
+    persist();
+    cheerEl.textContent = CHEERS[Math.floor(Math.random() * CHEERS.length)] + "  +1 ⭐";
+    cheerEl.className = "cheer";
+    burst();
+    sGood();
+    renderDots();
+    setTimeout(nextWord, 650);
+  }
+
+  function updateStreak() {
+    streakEl.textContent = streak;
+    starsEl.textContent = totalStars;
+  }
+
+  function levelComplete() {
+    const total = levelHits + levelMiss;
+    const acc = total ? Math.round((levelHits / total) * 100) : 100;
+    const rating = acc >= 97 ? 3 : acc >= 88 ? 2 : 1;
+    if (!cleared.includes(levelIdx)) cleared.push(levelIdx);
+    if (levelIdx === unlocked && unlocked < LEVELS.length - 1) unlocked++;
+    persist();
+    buildTrack();
+
+    el("cardEmoji").textContent = rating === 3 ? "🌟" : rating === 2 ? "🎉" : "👍";
+    el("cardTitle").textContent = LEVELS[levelIdx].name + " Clear!";
+    el("cardStars").textContent = "⭐".repeat(rating) + "☆".repeat(3 - rating);
+    el("cardMsg").textContent = "Accuracy " + acc + "%  •  " + WORDS_PER_LEVEL + " rounds typed";
+
+    const btns = el("cardBtns");
+    btns.innerHTML = "";
+    const again = mkBtn("Play Again", () => { hideModal(); startLevel(levelIdx); });
+    btns.appendChild(again);
+    if (levelIdx < LEVELS.length - 1) {
+      const nxt = mkBtn("Next Level →", () => { hideModal(); startLevel(levelIdx + 1); }, true);
+      btns.appendChild(nxt);
+    } else {
+      again.textContent = "Play Again";
+      const msg = mkBtn("🏆 You did it all!", () => hideModal(), true);
+      btns.appendChild(msg);
+    }
+    showModal();
+  }
+
+  function mkBtn(txt, fn, primary) {
+    const b = document.createElement("button");
+    b.className = "btn" + (primary ? " primary" : "");
+    b.textContent = txt;
+    b.addEventListener("click", fn);
+    return b;
+  }
+  function showModal() { scrim.hidden = false; }
+  function hideModal() { scrim.hidden = true; }
+
+  function persist() {
+    store.set({ unlocked, stars: totalStars, cleared, sound: soundOn });
+  }
+
+  /* ---------- Input ----------------------------------------------------- */
+  window.addEventListener("keydown", (e) => {
+    if (!scrim.hidden) {
+      if (e.key === "Enter") { const p = scrim.querySelector(".btn.primary") || scrim.querySelector(".btn"); if (p) p.click(); }
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    let k = e.key;
+    if (k === " ") e.preventDefault();
+    if (k.length !== 1) return;               // ignore Shift, Tab, Backspace, arrows…
+    if (pos >= target.length) return;
+
+    const expected = target[pos];
+    let ok;
+    if (/[a-z]/i.test(expected)) ok = k.toLowerCase() === expected.toLowerCase();
+    else ok = k === expected;
+
+    if (ok) correctChar();
+    else wrongChar();
+  });
+
+  /* ---------- Confetti ------------------------------------------------- */
+  const cv = el("confetti");
+  const cx = cv.getContext("2d");
+  let parts = [];
+  let raf = null;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function sizeCanvas() {
+    cv.width = window.innerWidth;
+    cv.height = window.innerHeight;
+  }
+  sizeCanvas();
+  window.addEventListener("resize", () => { sizeCanvas(); buildTrack(); });
+
+  function burst() {
+    if (reduce) return;
+    const rect = wordEl.getBoundingClientRect();
+    const ox = rect.left + rect.width / 2;
+    const oy = rect.top + rect.height / 2;
+    const colors = ["#ff6b5e","#ffb43d","#2fb37e","#5bb0f0","#8f9cf0","#ff9db0"];
+    for (let i = 0; i < 46; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = 3 + Math.random() * 7;
+      parts.push({
+        x: ox, y: oy,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp - 4,
+        g: 0.18 + Math.random() * 0.1,
+        s: 5 + Math.random() * 7,
+        rot: Math.random() * 6,
+        vr: (Math.random() - 0.5) * 0.4,
+        c: colors[i % colors.length],
+        life: 60 + Math.random() * 30
+      });
+    }
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function tick() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    parts = parts.filter((p) => p.life > 0 && p.y < cv.height + 40);
+    parts.forEach((p) => {
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life--;
+      cx.save();
+      cx.translate(p.x, p.y);
+      cx.rotate(p.rot);
+      cx.globalAlpha = Math.max(0, Math.min(1, p.life / 30));
+      cx.fillStyle = p.c;
+      cx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
+      cx.restore();
+    });
+    if (parts.length) raf = requestAnimationFrame(tick);
+    else { raf = null; cx.clearRect(0, 0, cv.width, cv.height); }
+  }
+
+  /* ---------- Go ------------------------------------------------------- */
+  buildKeyboard();
+  buildTrack();
+  starsEl.textContent = totalStars;
+  startLevel(Math.min(unlocked, LEVELS.length - 1));
+})();
+</script>
